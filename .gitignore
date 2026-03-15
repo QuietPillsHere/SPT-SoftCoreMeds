@@ -1,0 +1,17 @@
+﻿################################################################################
+# 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
+################################################################################
+
+/.vs/SPT-SoftCoreMeds.slnx/DesignTimeBuild
+/.vs/SPT-SoftCoreMeds.slnx/FileContentIndex
+/.vs/SPT-SoftCoreMeds.slnx/v18
+/.vs/slnx.sqlite
+/.vs/VSWorkspaceState.json
+/SoftCoreMeds/obj
+/.editorconfig
+/.vs/ProjectEvaluation
+/SoftCoreMeds/bin
+/SoftCoreMeds/Properties/PublishProfiles
+/SoftCoreMeds/SoftCoreMeds.csproj.user
+/.vs/SPT-SoftCoreMeds.slnx/ColorByRegexConfig.txt
+/SPT-SoftCoreMeds.slnx
