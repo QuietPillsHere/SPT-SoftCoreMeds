@@ -61,6 +61,7 @@ namespace SoftCoreMeds.Patch
         {
             if (!Plugin.EnableStimulatorPatch.Value)
             {
+                ResetBuffTemplate(item);
                 return;
             }
 
@@ -125,8 +126,8 @@ namespace SoftCoreMeds.Patch
 
                 // deplete Energy and Hydration for heal, deplete vale equals limb maxhealth
                 var bodyPartHealth = __instance.GetBodyPartHealth(bodyPart);
-                var energyPenalty = -bodyPartHealth.Maximum * __instance.SkillManager_0.MetabolismRatioPlus;
-                var hydrationPenalty = -bodyPartHealth.Maximum * __instance.SkillManager_0.MetabolismRatioPlus;
+                var energyPenalty = -bodyPartHealth.Maximum * (1F - __instance.SkillManager_0.MetabolismRatioPlus);
+                var hydrationPenalty = -bodyPartHealth.Maximum * (1F - __instance.SkillManager_0.MetabolismRatioPlus);
                 __instance.ChangeEnergy(energyPenalty);
                 __instance.ChangeHydration(hydrationPenalty);
 
@@ -153,6 +154,29 @@ namespace SoftCoreMeds.Patch
             }
 
             DebugLog($"PrePatch: execute complete");
+        }
+
+        public static void ResetBuffTemplate(Item item)
+        {
+            if (item is not StimulatorItemClass stimItem)
+            {
+                return;
+            }
+
+            if (stimItem?.TemplateId.StringID != _patchStimItemId)
+            {
+                return;
+            }
+
+            if (!item.TryGetItemComponent<HealthEffectsComponent>(out var buffContent))
+            {
+                return;
+            }
+
+            if (buffContent?.Ginterface392_0 is StimulatorTemplateClass effectTemplate)
+            {
+                effectTemplate.StimulatorBuffs = _originStimBuffKey ?? "BuffseTGchange";
+            }
         }
 
         public static void DebugLog(string logContent)
