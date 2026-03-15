@@ -25,7 +25,7 @@ namespace SoftCoreMeds.Patch
     internal class PatchWhenItemOnClick : ModulePatch
     {
         /// <summary>
-        /// Overwrite default EFT Meds Consum Imp
+        /// add logics to default EFT item click event
         /// </summary>
         /// <returns></returns>
         protected override MethodBase GetTargetMethod() 
@@ -49,6 +49,13 @@ namespace SoftCoreMeds.Patch
         /// </summary>
         private const string _cmsKit = "5d02778e86f774203e7dedbe";
 
+        /// <summary>
+        /// imp
+        /// </summary>
+        /// <param name="__instance"></param>
+        /// <param name="button"></param>
+        /// <param name="position"></param>
+        /// <param name="doubleClick"></param>
         [PatchPrefix]
         public static void Prefix(GridItemView __instance, InputButton button, Vector2 position, bool doubleClick)
         {
@@ -65,6 +72,7 @@ namespace SoftCoreMeds.Patch
                 return;
             }
 
+            // add mount clic event data to item context, for later use in other patch method (PatchSurgeryRestoreByBatch)
             if (__instance.Item.TryGetItemComponent<UIContextComponent>(out var component))
             {
                 DebugLog("create UIContextComponent");

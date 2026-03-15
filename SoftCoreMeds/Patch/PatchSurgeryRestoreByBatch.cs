@@ -103,7 +103,6 @@ namespace SoftCoreMeds.Patch
             _medicalItem = medicalItem;
             _nextLimb2Restore.Clear();
 
-            //__instance.InventoryController_0.
             var uiComponent = medicalItem.GetItemComponent<UIContextComponent>();
             var healAll = bodyPart == EBodyPart.Common;
             if (uiComponent != null)
