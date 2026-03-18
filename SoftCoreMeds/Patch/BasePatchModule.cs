@@ -26,7 +26,7 @@ namespace SoftCoreMeds.Patch
 
         public static void DebugLog(string logContent)
         {
-            if (Plugin.EnableLog?.Value == true)
+            if (Plugin.EnableLog.Value)
             {
                 string logFlag = IsPatchByPreFix ? "PreFix" : "PostFix";
                 Logger.LogDebug($"{logFlag}: {logContent}");

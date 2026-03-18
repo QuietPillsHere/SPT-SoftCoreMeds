@@ -65,7 +65,7 @@ namespace SoftCoreMeds.Patch
                 return;
             }
 
-            Logger.LogInfo($"Init, buttons = {button}, doubleClick = {doubleClick}");
+            DebugLog($"Init, buttons = {button}, doubleClick = {doubleClick}");
 
             if (!IsPatchItem(__instance.Item.StringTemplateId))
             {

@@ -73,7 +73,7 @@ namespace SoftCoreMeds.Patch
             if (!IsPatchItem(item.StringTemplateId))
             {
                 // skip other stim
-                Logger.LogInfo("skip for none surgical kit");
+                DebugLog("skip for none surgical kit");
                 return;
             }
 
