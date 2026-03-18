@@ -48,7 +48,7 @@ namespace SoftCoreMeds
                 "1. Settings",
                 "Enable Surgery Feature",
                 true,
-                new ConfigDescription("Enable for bactch restore blackout limb when using surgical kit, only apply to Sur12 and CMS")
+                new ConfigDescription("Enable for bactch restore blackout limb when using surgical kit, only apply to Surv12 and CMS")
             );
 
             EnableStimulatorPatch = Config.Bind(
