@@ -19,7 +19,7 @@ namespace SoftCoreMeds.Patch
     /// <summary>
     /// Make Surgical Kit great again
     /// </summary>
-    internal class PatchSurgeryRestoreByBatch : ModulePatch
+    internal class PatchSurgeryRestoreByBatch : BasePatchModule
     {
         /// <summary>
         /// Overwrite default EFT Meds Consum Imp
@@ -27,6 +27,7 @@ namespace SoftCoreMeds.Patch
         /// <returns></returns>
         protected override MethodBase GetTargetMethod() 
         {
+            IsPatchByPreFix = false;
             return AccessTools.Method(
                 typeof(PlayerHealthController),
                 nameof(PlayerHealthController.method_7),
@@ -169,14 +170,6 @@ namespace SoftCoreMeds.Patch
                 }
             }
             _instance.BodyPartRestoredEvent -= RestoreNextLimb;
-        }
-
-        public static void DebugLog(string logContent, string logFlag = "PostFix")
-        {
-            if (Plugin.EnableLog?.Value is true)
-            {
-                Logger.LogDebug($"{logFlag}: {logContent}");
-            }
         }
 
     }

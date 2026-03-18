@@ -22,7 +22,7 @@ namespace SoftCoreMeds.Patch
     /// <summary>
     /// Make Surgical Kit great again
     /// </summary>
-    internal class PatchWhenItemOnClick : ModulePatch
+    internal class PatchWhenItemOnClick : BasePatchModule
     {
         /// <summary>
         /// add logics to default EFT item click event
@@ -30,6 +30,7 @@ namespace SoftCoreMeds.Patch
         /// <returns></returns>
         protected override MethodBase GetTargetMethod() 
         {
+            IsPatchByPreFix = true;
             return AccessTools.Method(
                 typeof(GridItemView), // class
                 nameof(GridItemView.OnClick), // method
@@ -91,14 +92,6 @@ namespace SoftCoreMeds.Patch
         public static bool IsPatchItem(string itemTemplateId)
         {
             return itemTemplateId == _surv12Kit || itemTemplateId == _cmsKit;
-        }
-
-        public static void DebugLog(string logContent, string logFlag = "Prefix")
-        {
-            if (Plugin.EnableLog?.Value is true)
-            {
-                Logger.LogDebug($"{logFlag}: {logContent}");
-            }
         }
 
     }

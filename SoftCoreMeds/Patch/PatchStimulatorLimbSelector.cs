@@ -19,7 +19,7 @@ namespace SoftCoreMeds.Patch
     /// <summary>
     /// Make STIM great again: add limb selector in quick slot for stim usage 
     /// </summary>
-    internal class PatchStimulatorLimbSelector : ModulePatch
+    internal class PatchStimulatorLimbSelector : BasePatchModule
     {
         /// <summary>
         /// Overwrite default EFT Meds Consum Imp
@@ -27,6 +27,7 @@ namespace SoftCoreMeds.Patch
         /// <returns></returns>
         protected override MethodBase GetTargetMethod()
         {
+            IsPatchByPreFix = false;
             return AccessTools.Method(
                 typeof(HealingLimbSelector),
                 nameof(HealingLimbSelector.TryGetLimbsToHealByItem),
@@ -51,17 +52,17 @@ namespace SoftCoreMeds.Patch
 
             result ??= new List<EBodyPart>();
 
-            Logger.LogInfo($"Postfix: Init, param [Item = {item.StringTemplateId}, Name = {item.Name}, BodyPart = {string.Join("|", result.Select(_ => _.ToString()))}, ItemType = {item.GetType().FullName}]");
+            DebugLog($"Init, param [Item = {item.StringTemplateId}, Name = {item.Name}, BodyPart = {string.Join("|", result.Select(_ => _.ToString()))}, ItemType = {item.GetType().FullName}]");
 
             if (item.StringTemplateId != _patchStimItemId)
             {
-                Logger.LogInfo("Postfix: skip none patch stim");
+                DebugLog("skip none patch stim");
                 return;
             }
 
             if (result?.Count > 0)
             {
-                Logger.LogInfo("Postfix: skip unkown condition");
+                DebugLog("skip unkown condition");
                 return;
             }
 
@@ -75,15 +76,7 @@ namespace SoftCoreMeds.Patch
 
             __result = result?.Count > 0;
 
-            Logger.LogInfo($"Postfix: execute complete");
-        }
-
-        public static void DebugLog(string logContent, string logFlag = "PostFix")
-        {
-            if (Plugin.EnableLog?.Value is true)
-            {
-                Logger.LogDebug($"{logFlag}: {logContent}");
-            }
+            DebugLog($"execute complete");
         }
 
     }

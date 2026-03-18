@@ -22,7 +22,7 @@ namespace SoftCoreMeds.Patch
     /// <summary>
     /// Make STIM great again
     /// </summary>
-    internal class PatchStimulatorRestoreLimb : ModulePatch
+    internal class PatchStimulatorRestoreLimb : BasePatchModule
     {
         /// <summary>
         /// Overwrite default EFT Meds Consum Imp
@@ -30,6 +30,7 @@ namespace SoftCoreMeds.Patch
         /// <returns></returns>
         protected override MethodBase GetTargetMethod()
         {
+            IsPatchByPreFix = true;
             return AccessTools.Method(
                 typeof(PlayerHealthController),
                 nameof(PlayerHealthController.method_7),
@@ -70,7 +71,7 @@ namespace SoftCoreMeds.Patch
             if (fastSearch)
             {
                 // skip dry run
-                DebugLog("PrePatch: skip ui dry run");
+                DebugLog("skip ui dry run");
                 return;
             }
 
@@ -79,14 +80,14 @@ namespace SoftCoreMeds.Patch
             if (item is not StimulatorItemClass stimItem)
             {
                 // skip food
-                DebugLog("PrePatch: skip none stim");
+                DebugLog("skip none stim");
                 return;
             }
 
             if (stimItem?.TemplateId.StringID != _patchStimItemId)
             {
                 // skip other stim
-                DebugLog($"PrePatch: skip other stim, id = {stimItem?.TemplateId.StringID}");
+                DebugLog($"skip other stim, id = {stimItem?.TemplateId.StringID}");
                 return;
             }
 
@@ -94,7 +95,7 @@ namespace SoftCoreMeds.Patch
             var stimulatorSetting = Singleton<BackendConfigSettingsClass>.Instance.Health.Effects.Stimulator;
             if (stimulatorSetting.Buffs.TryAdd(_patchStimDebuffKey, _patchStimDebuff))
             {
-                DebugLog($"PrePatch: init debuffsetting = {_patchStimDebuffKey}");
+                DebugLog($"init debuffsetting = {_patchStimDebuffKey}");
             }
 
             // get stimbuff from stim item
@@ -104,11 +105,11 @@ namespace SoftCoreMeds.Patch
             // check stim type for safe side
             if (buffContent?.Ginterface392_0 is StimulatorTemplateClass effectTemplate)
             {
-                DebugLog($"PrePatch: buffsetting = {buffContent?.StimulatorBuffs}, {buffContent?.Ginterface392_0?.GetType().FullName}");
+                DebugLog($"buffsetting = {buffContent?.StimulatorBuffs}, {buffContent?.Ginterface392_0?.GetType().FullName}");
             }
             else
             {
-                DebugLog($"PrePatch: error component interfeace = {buffContent?.Ginterface392_0.GetType().FullName}");
+                DebugLog($"error component interfeace = {buffContent?.Ginterface392_0.GetType().FullName}");
                 return;
             }
 
@@ -117,7 +118,7 @@ namespace SoftCoreMeds.Patch
             // is palyer use stim for limb heal
             if (GClass3058.RealBodyParts.Contains(bodyPart) && __instance.IsBodyPartDestroyed(bodyPart))
             {
-                DebugLog($"PrePatch: restore body part = {bodyPart}, current buff key = {effectTemplate.StimulatorBuffs}, backup buff key = {_originStimBuffKey}");
+                DebugLog($"restore body part = {bodyPart}, current buff key = {effectTemplate.StimulatorBuffs}, backup buff key = {_originStimBuffKey}");
 
                 // restore limb base and set penalty
                 //var healthPenalty = UnityEngine.Random.Range(penaltyRange.HealthPenaltyMin, penaltyRange.HealthPenaltyMax) / 100f;
@@ -149,11 +150,11 @@ namespace SoftCoreMeds.Patch
             else
             {
                 // reset stim buff to origin
-                DebugLog($"PrePatch: item current buff = {effectTemplate.StimulatorBuffs}, backup buff key = {_originStimBuffKey}");
+                DebugLog($"item current buff = {effectTemplate.StimulatorBuffs}, backup buff key = {_originStimBuffKey}");
                 effectTemplate.StimulatorBuffs = _originStimBuffKey ?? effectTemplate.StimulatorBuffs;
             }
 
-            DebugLog($"PrePatch: execute complete");
+            DebugLog($"execute complete");
         }
 
         public static void ResetBuffTemplate(Item item)
@@ -179,39 +180,30 @@ namespace SoftCoreMeds.Patch
             }
         }
 
-        public static void DebugLog(string logContent)
-        {
-            if (Plugin.EnableLog?.Value is true)
-            {
-                Logger.LogDebug(logContent);
-            }
-        }
-
         public static void DebugLog(Item item)
         {
-            DebugLog($"PrePatch itemType: {item.GetType().FullName}");
+            DebugLog($"itemType: {item.GetType().FullName}");
 
             if (item is MedicalItemClass medicalItem)
             {
                 foreach (var comp in medicalItem.Components)
                 {
-                    DebugLog($"PrePatch components type: {comp.GetType().FullName}");
+                    DebugLog($"components type: {comp.GetType().FullName}");
                 }
             }
         }
 
         public static void DebugLog(StimEffect effect)
         {
-            DebugLog($"PrePatch debug#4: effect = {effect.GetType().FullName}, {effect.Id}, {effect.State}");
-            DebugLog($"PrePatch debug#5: {string.Join(", ", effect.DisplayableVariations.SelectMany(_ => _.Buffs).Select(_ => _.NameDisplay))}");
+            DebugLog($"debug#4: effect = {effect.GetType().FullName}, {effect.Id}, {effect.State}");
+            DebugLog($"debug#5: {string.Join(", ", effect.DisplayableVariations.SelectMany(_ => _.Buffs).Select(_ => _.NameDisplay))}");
         }
-
 
         public static void DebugLog(HealthEffectsComponent buffContent, StimulatorItemClass stimItem)
         {
             if (buffContent == null)
             {
-                DebugLog($"PrePatch: error component in stim effect model ({string.Join(", ", stimItem.Components.Select(item => item.GetType().FullName))})");
+                DebugLog($"error component in stim effect model ({string.Join(", ", stimItem.Components.Select(item => item.GetType().FullName))})");
             }
             else
             {
@@ -223,12 +215,12 @@ namespace SoftCoreMeds.Patch
         {
             foreach (var _ in __instance.List_0)
             {
-                DebugLog($"PrePatch debug#0: {_.BodyPart}");
+                DebugLog($"debug#0: {_.BodyPart}");
                 foreach (var __ in _.List_0)
                 {
                     if (__ is GInterface376 effect1)
                     {
-                        DebugLog($"PrePatch debug#1: {effect1.BodyPart}, id = {__.Id}, tempid = {effect1.MedItem.StringTemplateId}");
+                        DebugLog($"debug#1: {effect1.BodyPart}, id = {__.Id}, tempid = {effect1.MedItem.StringTemplateId}");
                         if (effect1.MedItem.StringTemplateId == _patchStimItemId)
                         {
                             //__instance.RemoveEffectFromList(__);
@@ -236,7 +228,7 @@ namespace SoftCoreMeds.Patch
                     }
                     else if (__ is StimEffect effect2)
                     {
-                        DebugLog($"PrePatch debug#2: {effect2.BodyPart}, id = {effect2.Id}, tempid = {effect2.Store.ItemTemplateId}");
+                        DebugLog($"debug#2: {effect2.BodyPart}, id = {effect2.Id}, tempid = {effect2.Store.ItemTemplateId}");
                         if (effect2.Store.ItemTemplateId == _patchStimItemId)
                         {
                             //__instance.RemoveEffectFromList(__);
@@ -244,7 +236,7 @@ namespace SoftCoreMeds.Patch
                     }
                     else
                     {
-                        DebugLog($"PrePatch debug#3: type = {__.GetType().FullName}");
+                        DebugLog($"debug#3: type = {__.GetType().FullName}");
                     }
                 }
             }
