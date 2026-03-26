@@ -47,8 +47,6 @@ namespace SoftCoreMeds.Patch
         /// </summary>
         private const string _cmsKit = "5d02778e86f774203e7dedbe";
 
-        private static readonly List<EBodyPart> _nextLimb2Restore = new ();
-
         private static PlayerHealthController _instance;
 
         private static MedicalItemClass _medicalItem;
@@ -102,7 +100,6 @@ namespace SoftCoreMeds.Patch
 
             _instance = __instance;
             _medicalItem = medicalItem;
-            _nextLimb2Restore.Clear();
 
             var uiComponent = medicalItem.GetItemComponent<UIContextComponent>();
             var healAll = bodyPart == EBodyPart.Common;
@@ -117,7 +114,6 @@ namespace SoftCoreMeds.Patch
             {
                 // add restore all destory limb event
                 var destoryedLimbs = GClass3058.RealBodyParts.Where(_ => __instance.IsBodyPartDestroyed(_)).Distinct();
-                _nextLimb2Restore.AddRange(destoryedLimbs);
                 __instance.BodyPartRestoredEvent -= RestoreNextLimb;
                 __instance.BodyPartRestoredEvent += RestoreNextLimb;
             }
@@ -138,6 +134,8 @@ namespace SoftCoreMeds.Patch
         {
             DebugLog($"restore event, BodyPart = {body}, Current = {bodyPartHealth.Current}, Minimum = {bodyPartHealth.Minimum}, Maximum = {bodyPartHealth.Maximum}, AtMinimum = {bodyPartHealth.AtMinimum}, AtMaximum = {bodyPartHealth.AtMaximum}");
 
+            _instance.BodyPartRestoredEvent -= RestoreNextLimb;
+
             if (!_medicalItem.HealthEffectsComponent.DamageEffects.TryGetValue(EDamageEffectType.DestroyedPart, out var penaltyRange))
             {
                 DebugLog("can't resolve surgical penalty factor");
@@ -147,11 +145,17 @@ namespace SoftCoreMeds.Patch
             DebugLog($"surgical penalty factor = {penaltyRange.HealthPenaltyMin}, {penaltyRange.HealthPenaltyMax}");
 
             var penaltyValue = UnityEngine.Random.Range(penaltyRange.HealthPenaltyMin, penaltyRange.HealthPenaltyMax) / 100f;
-            foreach (var nextlimb in _nextLimb2Restore)
+            var destoryedLimbs = GClass3058.RealBodyParts.Where(_ => _instance.IsBodyPartDestroyed(_)).Distinct();
+            foreach (var nextlimb in destoryedLimbs)
             {
-                DebugLog($"loop {nextlimb}, MaxHpResource = {_medicalItem.MedKitComponent.MaxHpResource}, HpResourceRate = {_medicalItem.MedKitComponent.HpResourceRate}");
+                DebugLog($"loop {nextlimb}, HpResource = {_medicalItem.MedKitComponent.HpResource}");
 
-                if (_medicalItem.MedKitComponent.HpResource <= 0)
+                if(nextlimb == body)
+                {
+                    continue;
+                }
+
+                if (_medicalItem.MedKitComponent.HpResource < 2)
                 {
                     DebugLog("loop end for no resource left");
                     break;
@@ -169,7 +173,6 @@ namespace SoftCoreMeds.Patch
                     DebugLog($"loop {nextlimb}, restore success, resource = {_medicalItem.MedKitComponent.HpResource}");
                 }
             }
-            _instance.BodyPartRestoredEvent -= RestoreNextLimb;
         }
 
     }

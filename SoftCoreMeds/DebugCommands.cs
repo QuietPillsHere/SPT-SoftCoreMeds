@@ -20,8 +20,11 @@ namespace SoftCoreMeds
                 var gameWorld = Singleton<GameWorld>.Instance;
                 if (gameWorld.MainPlayer != null)
                 {
+                    gameWorld.MainPlayer.ActiveHealthController.ApplyDamage(EBodyPart.Stomach, 75 , default);
                     gameWorld.MainPlayer.ActiveHealthController.ApplyDamage(EBodyPart.LeftArm, 75 , default);
                     gameWorld.MainPlayer.ActiveHealthController.ApplyDamage(EBodyPart.RightArm, 75, default);
+                    gameWorld.MainPlayer.ActiveHealthController.ApplyDamage(EBodyPart.LeftLeg, 75, default);
+                    gameWorld.MainPlayer.ActiveHealthController.ApplyDamage(EBodyPart.RightLeg, 75, default);
                 }
             }
         }
