@@ -19,6 +19,13 @@ namespace SoftCoreMeds
 
         public static ConfigEntry<int> StimRestorePercent { get; set;}
 
+        public static ConfigEntry<string> OverWriteStimId { get; set; }
+
+        /// <summary>
+        /// STIM Item Id: eTG 
+        /// </summary>
+        private const string _defaultPatchStimItemId = "5c0e534186f7747fa1419867";
+
         private void Awake()
         {
             // BepIn Configuration Init
@@ -68,6 +75,15 @@ namespace SoftCoreMeds
                 )
             );
 
+            OverWriteStimId = Config.Bind(
+                "2. Balance",
+                "OverWrite Default STIM Id",
+                "",
+                new ConfigDescription(
+                    "Here Is For Repalce Default STIM (5c0e534186f7747fa1419867) With Other STIM Id, Please Don't Put Other Class Of Item Id, Anything Could Happen If You Do That"
+                )
+            );
+
 #if DEBUG
             EnableLog = Config.Bind(
                 "1. Settings",
@@ -84,6 +100,12 @@ namespace SoftCoreMeds
             );
 
 #endif
+        }
+
+        public static bool Check4PatchStimId(string inputItemID)
+        {
+            string patchStimId = string.IsNullOrEmpty(OverWriteStimId.Value) ? _defaultPatchStimItemId : OverWriteStimId.Value.Trim();
+            return patchStimId == inputItemID;
         }
 
     }

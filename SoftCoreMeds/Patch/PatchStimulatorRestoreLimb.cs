@@ -41,11 +41,6 @@ namespace SoftCoreMeds.Patch
 
         private static new readonly ManualLogSource Logger = LoggerInstance.CreateLogSource(nameof(PatchStimulatorRestoreLimb));
 
-        /// <summary>
-        /// STIM Item Id: Propital 
-        /// </summary>
-        private const string _patchStimItemId = "5c0e534186f7747fa1419867";
-
         private static string _originStimBuffKey;
 
         private const string _patchStimDebuffKey = nameof(PatchStimulatorRestoreLimb);
@@ -84,7 +79,7 @@ namespace SoftCoreMeds.Patch
                 return;
             }
 
-            if (stimItem?.TemplateId.StringID != _patchStimItemId)
+            if (!Plugin.Check4PatchStimId(stimItem?.TemplateId.StringID))
             {
                 // skip other stim
                 DebugLog($"skip other stim, id = {stimItem?.TemplateId.StringID}");
@@ -133,7 +128,7 @@ namespace SoftCoreMeds.Patch
                 __instance.ChangeHydration(hydrationPenalty);
 
                 // remove stim current buff, for next step
-                var activateEffects = __instance.FindActiveEffects<StimEffect>(EBodyPart.Common).Where(effect => effect.Store.ItemTemplateId == _patchStimItemId);
+                var activateEffects = __instance.FindActiveEffects<StimEffect>(EBodyPart.Common).Where(effect => Plugin.Check4PatchStimId(effect.Store.ItemTemplateId));
                 foreach (var effect in activateEffects)
                 {
                     DebugLog(effect);
@@ -164,7 +159,7 @@ namespace SoftCoreMeds.Patch
                 return;
             }
 
-            if (stimItem?.TemplateId.StringID != _patchStimItemId)
+            if (!Plugin.Check4PatchStimId(stimItem?.TemplateId.StringID))
             {
                 return;
             }
@@ -213,6 +208,11 @@ namespace SoftCoreMeds.Patch
 
         public static void DebugLog(PlayerHealthController __instance, string flagStr)
         {
+            if (!Plugin.EnableLog.Value)
+            {
+                return;
+            }
+
             foreach (var _ in __instance.List_0)
             {
                 DebugLog($"debug#0: {_.BodyPart}");
@@ -221,7 +221,7 @@ namespace SoftCoreMeds.Patch
                     if (__ is GInterface376 effect1)
                     {
                         DebugLog($"debug#1: {effect1.BodyPart}, id = {__.Id}, tempid = {effect1.MedItem.StringTemplateId}");
-                        if (effect1.MedItem.StringTemplateId == _patchStimItemId)
+                        if (Plugin.Check4PatchStimId(effect1.MedItem.StringTemplateId))
                         {
                             //__instance.RemoveEffectFromList(__);
                         }
@@ -229,7 +229,7 @@ namespace SoftCoreMeds.Patch
                     else if (__ is StimEffect effect2)
                     {
                         DebugLog($"debug#2: {effect2.BodyPart}, id = {effect2.Id}, tempid = {effect2.Store.ItemTemplateId}");
-                        if (effect2.Store.ItemTemplateId == _patchStimItemId)
+                        if (Plugin.Check4PatchStimId(effect2.Store.ItemTemplateId))
                         {
                             //__instance.RemoveEffectFromList(__);
                         }

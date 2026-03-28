@@ -37,11 +37,6 @@ namespace SoftCoreMeds.Patch
 
         private static new readonly ManualLogSource Logger = LoggerInstance.CreateLogSource(nameof(PatchStimulatorLimbSelector));
 
-        /// <summary>
-        /// STIM Item Id: Propital 
-        /// </summary>
-        private const string _patchStimItemId = "5c0e534186f7747fa1419867";
-
         [PatchPostfix]
         public static void Postfix(HealingLimbSelector __instance, Item item, IHealthController healthController, ref List<EBodyPart>? result, ref bool __result)
         {
@@ -54,7 +49,7 @@ namespace SoftCoreMeds.Patch
 
             DebugLog($"Init, param [Item = {item.StringTemplateId}, Name = {item.Name}, BodyPart = {string.Join("|", result.Select(_ => _.ToString()))}, ItemType = {item.GetType().FullName}]");
 
-            if (item.StringTemplateId != _patchStimItemId)
+            if (!Plugin.Check4PatchStimId(item.StringTemplateId))
             {
                 DebugLog("skip none patch stim");
                 return;
