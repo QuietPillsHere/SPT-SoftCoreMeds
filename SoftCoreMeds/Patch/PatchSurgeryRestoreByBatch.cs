@@ -12,7 +12,7 @@ using System.Text;
 using static EFT.Player;
 using static EFT.Player.MedsController;
 using LoggerInstance = BepInEx.Logging.Logger;
-using PlayerHealthController = GClass3010;
+using PlayerHealthController = EFT.HealthSystem.PlayerHealthController;
 
 namespace SoftCoreMeds.Patch
 {
@@ -30,7 +30,7 @@ namespace SoftCoreMeds.Patch
             IsPatchByPreFix = false;
             return AccessTools.Method(
                 typeof(PlayerHealthController),
-                nameof(PlayerHealthController.method_7),
+                nameof(PlayerHealthController.TryGetBodyPartToApply),
                 new Type[] { typeof(Item), typeof(EBodyPart), typeof(bool), typeof(EBodyPart?).MakeByRefType() }
             );
         }
@@ -49,7 +49,7 @@ namespace SoftCoreMeds.Patch
 
         private static PlayerHealthController _instance;
 
-        private static MedicalItemClass _medicalItem;
+        private static Meds _medicalItem;
 
         [PatchPostfix]
         public static void PostFix(PlayerHealthController __instance, Item item, EBodyPart bodyPart, bool fastSearch, ref EBodyPart? damagedBodyPart, ref bool __result)
@@ -75,7 +75,7 @@ namespace SoftCoreMeds.Patch
                 return;
             }
 
-            if (item is not MedicalItemClass medicalItem)
+            if (item is not Meds medicalItem)
             {
                 // skip food and drink
                 DebugLog("skip food and drink, or stim");
@@ -83,8 +83,8 @@ namespace SoftCoreMeds.Patch
             }
 
             // i'm soooooooooooo lost, this code just to find out what's EFT Dev doing
-            DebugLog($"print component type = {medicalItem.MedKitComponent?.IMedkitResource?.GetType().FullName}");
-            DebugLog($"resource count = {medicalItem.MedKitComponent?.HpResource}");
+            //DebugLog($"print component type = {medicalItem.MedKitComponent?.IMedkitResource?.GetType().FullName}");
+            //DebugLog($"resource count = {medicalItem.MedKitComponent?.HpResource}");
 
             if (medicalItem.MedKitComponent?.HpResource <= 1)
             {
@@ -92,9 +92,9 @@ namespace SoftCoreMeds.Patch
                 return;
             }
 
-            if (medicalItem.MedKitComponent?.IMedkitResource is not MedicalTemplateClass medicalResource)
+            if (medicalItem.MedKitComponent._template is not MedicalTemplate)
             {
-                DebugLog("skip for unknow condition");
+                // skip not drug surgical kit, like CMS Surgical Kit
                 return;
             }
 
@@ -113,7 +113,7 @@ namespace SoftCoreMeds.Patch
             if (healAll)
             {
                 // add restore all destory limb event
-                var destoryedLimbs = GClass3058.RealBodyParts.Where(_ => __instance.IsBodyPartDestroyed(_)).Distinct();
+                var destoryedLimbs = HealthHelper.RealBodyParts.Where(_ => __instance.IsBodyPartDestroyed(_)).Distinct();
                 __instance.BodyPartRestoredEvent -= RestoreNextLimb;
                 __instance.BodyPartRestoredEvent += RestoreNextLimb;
             }
@@ -145,7 +145,7 @@ namespace SoftCoreMeds.Patch
             DebugLog($"surgical penalty factor = {penaltyRange.HealthPenaltyMin}, {penaltyRange.HealthPenaltyMax}");
 
             var penaltyValue = UnityEngine.Random.Range(penaltyRange.HealthPenaltyMin, penaltyRange.HealthPenaltyMax) / 100f;
-            var destoryedLimbs = GClass3058.RealBodyParts.Where(_ => _instance.IsBodyPartDestroyed(_)).Distinct();
+            var destoryedLimbs = HealthHelper.RealBodyParts.Where(_ => _instance.IsBodyPartDestroyed(_)).Distinct();
             foreach (var nextlimb in destoryedLimbs)
             {
                 DebugLog($"loop {nextlimb}, HpResource = {_medicalItem.MedKitComponent.HpResource}");

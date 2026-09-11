@@ -4,7 +4,6 @@ using BepInEx.Logging;
 using EFT.UI;
 using SoftCoreMeds.Configuration;
 using SoftCoreMeds.Patch;
-using static GClass2175;
 
 namespace SoftCoreMeds
 {
@@ -36,7 +35,9 @@ namespace SoftCoreMeds
             new PatchWhenItemOnClick().Enable();
             new PatchStimulatorRestoreLimb().Enable();
             new PatchStimulatorLimbSelector().Enable();
+
 #if DEBUG
+            Logger.LogWarning("Running on debug mod");
             //Defind Console Commands For Debug :D
             ConsoleScreen.Processor.RegisterCommandGroup<DebugCommands>();
 #endif

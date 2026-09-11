@@ -8,15 +8,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
-
-	<PropertyGroup>
-		<TarkovDir>D:\GAMES\Escape from Tarkov - FIKA\</TarkovDir>
-		<TarkovPluginsSPTDir>$(TarkovDir)BepInEx\plugins\spt\</TarkovPluginsSPTDir>
-		<TarkovManagedDir>$(TarkovDir)EscapeFromTarkov_Data\Managed\</TarkovManagedDir>
-		<TarkovBepInExCoreDir>$(TarkovDir)BepInEx\core\</TarkovBepInExCoreDir>
-		<TarkovDumpedAssemblyDir>$(TarkovDir)BepInEx\DumpedAssemblies\EscapeFromTarkov\</TarkovDumpedAssemblyDir>
-	</PropertyGroup>
-
+	
 	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
 		<DebugSymbols>true</DebugSymbols>
 		<DebugType>full</DebugType>
@@ -32,65 +24,71 @@
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<SPTLibVersion>4.1</SPTLibVersion>
+		<PublishFullLib>false</PublishFullLib>
+		<SPTLibPath>..\SPT.Lib\$(SPTLibVersion)</SPTLibPath>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<Reference Include="0Harmony">
-			<HintPath>$(TarkovBepInExCoreDir)0Harmony.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>$(SPTLibPath)\0Harmony.dll</HintPath>
+			<Private>$(PublishFullLib)</Private>
 		</Reference>
 
 		<Reference Include="Assembly-CSharp">
-			<HintPath>$(TarkovDumpedAssemblyDir)Assembly-CSharp.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>$(SPTLibPath)\Assembly-CSharp.dll</HintPath>
+			<Private>$(PublishFullLib)</Private>
 		</Reference>
 
 		<Reference Include="BepInEx">
-			<HintPath>$(TarkovBepInExCoreDir)BepInEx.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>$(SPTLibPath)\BepInEx.dll</HintPath>
+			<Private>$(PublishFullLib)</Private>
 		</Reference>
 
 		<Reference Include="bsg.console.core">
-			<HintPath>$(TarkovManagedDir)bsg.console.core.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>$(SPTLibPath)\bsg.console.core.dll</HintPath>
+			<Private>$(PublishFullLib)</Private>
 		</Reference>
 
 		<Reference Include="Comfort">
-			<HintPath>$(TarkovManagedDir)Comfort.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>$(SPTLibPath)\Comfort.dll</HintPath>
+			<Private>$(PublishFullLib)</Private>
 		</Reference>
 
 		<Reference Include="Sirenix.Serialization">
-			<HintPath>$(TarkovManagedDir)Sirenix.Serialization.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>$(SPTLibPath)\Sirenix.Serialization.dll</HintPath>
+			<Private>$(PublishFullLib)</Private>
 		</Reference>
 
 		<Reference Include="ItemComponent.Types">
-			<HintPath>$(TarkovManagedDir)ItemComponent.Types.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>$(SPTLibPath)\ItemComponent.Types.dll</HintPath>
+			<Private>$(PublishFullLib)</Private>
 		</Reference>
 
 		<Reference Include="spt-reflection">
-			<HintPath>$(TarkovPluginsSPTDir)spt-reflection.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>$(SPTLibPath)\spt-reflection.dll</HintPath>
+			<Private>$(PublishFullLib)</Private>
 		</Reference>
 
 		<Reference Include="UnityEngine">
-			<HintPath>$(TarkovManagedDir)UnityEngine.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>$(SPTLibPath)\UnityEngine.dll</HintPath>
+			<Private>$(PublishFullLib)</Private>
 		</Reference>
 
 		<Reference Include="UnityEngine.CoreModule">
-			<HintPath>$(TarkovManagedDir)UnityEngine.CoreModule.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>$(SPTLibPath)\UnityEngine.CoreModule.dll</HintPath>
+			<Private>$(PublishFullLib)</Private>
 		</Reference>
 
 		<Reference Include="UnityEngine.UI">
-			<HintPath>$(TarkovManagedDir)UnityEngine.UI.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>$(SPTLibPath)\UnityEngine.UI.dll</HintPath>
+			<Private>$(PublishFullLib)</Private>
 		</Reference>
 
 		<Reference Include="UnityEngine.InputLegacyModule">
-			<HintPath>$(TarkovManagedDir)UnityEngine.InputLegacyModule.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>$(SPTLibPath)\UnityEngine.InputLegacyModule.dll</HintPath>
+			<Private>$(PublishFullLib)</Private>
 		</Reference>
 	</ItemGroup>
 </Project>

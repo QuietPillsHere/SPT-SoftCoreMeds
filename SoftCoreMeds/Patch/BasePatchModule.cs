@@ -29,7 +29,7 @@ namespace SoftCoreMeds.Patch
             if (Plugin.EnableLog.Value)
             {
                 string logFlag = IsPatchByPreFix ? "PreFix" : "PostFix";
-                Logger.LogDebug($"{logFlag}: {logContent}");
+                Logger.LogInfo($"{logFlag}: {logContent}");
             }
         }
 

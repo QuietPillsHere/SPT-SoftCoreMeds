@@ -61,7 +61,7 @@ namespace SoftCoreMeds.Patch
                 return;
             }
 
-            foreach (var bodyPart in GClass3058.RealBodyParts)
+            foreach (var bodyPart in HealthHelper.RealBodyParts)
             {
                 if (healthController.IsBodyPartDestroyed(bodyPart))
                 {

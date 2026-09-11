@@ -10,12 +10,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using EFT.HealthSystem;
 using LoggerInstance = BepInEx.Logging.Logger;
-using HealthEffect = EFT.HealthSystem.ActiveHealthController.GClass3008;
-using PlayerHealthController = GClass3010;
-using StimBuff = GClass3019.GClass3044.GClass3045;
-using StimEffect = EFT.HealthSystem.ActiveHealthController.Effect<GStruct394>;
-using MedEffect = EFT.HealthSystem.ActiveHealthController.Effect<GStruct393>;
+using PlayerHealthController = EFT.HealthSystem.ActiveHealthController;
+using StimBuff = EFT.HealthSystem.EffectsSettings.StimulatorSettings.StimulatorBuffSettings;
+using StimEffect = EFT.HealthSystem.ActiveHealthController.Effect<EFT.HealthSystem.StimulatorStore>;
+using MedEffect = EFT.HealthSystem.ActiveHealthController.Effect<EFT.HealthSystem.SyncHealthPacket.SyncAddEffect.ExtraDataUnion>;
 
 namespace SoftCoreMeds.Patch
 {
@@ -33,8 +33,7 @@ namespace SoftCoreMeds.Patch
             IsPatchByPreFix = true;
             return AccessTools.Method(
                 typeof(PlayerHealthController),
-                nameof(PlayerHealthController.method_7),
-                //nameof(PlayerHealthController.DoMedEffect),
+                nameof(PlayerHealthController.TryGetBodyPartToApply),
                 new Type[] { typeof(Item), typeof(EBodyPart), typeof(bool), typeof(EBodyPart?).MakeByRefType() }
             );
         }
@@ -72,22 +71,22 @@ namespace SoftCoreMeds.Patch
 
             DebugLog(item);
 
-            if (item is not StimulatorItemClass stimItem)
+            if (item is not Stimulator stimItem || stimItem == null)
             {
                 // skip food
                 DebugLog("skip none stim");
                 return;
             }
 
-            if (!Plugin.Check4PatchStimId(stimItem?.TemplateId.StringID))
+            if (!Plugin.Check4PatchStimId(stimItem.TemplateId._stringID))
             {
                 // skip other stim
-                DebugLog($"skip other stim, id = {stimItem?.TemplateId.StringID}");
+                DebugLog($"skip other stim, id = {stimItem?.TemplateId._stringID}");
                 return;
             }
 
             // register debuff for limb heal
-            var stimulatorSetting = Singleton<BackendConfigSettingsClass>.Instance.Health.Effects.Stimulator;
+            var stimulatorSetting = Singleton<GlobalConfiguration>.Instance.Health.Effects.Stimulator;
             if (stimulatorSetting.Buffs.TryAdd(_patchStimDebuffKey, _patchStimDebuff))
             {
                 DebugLog($"init debuffsetting = {_patchStimDebuffKey}");
@@ -98,20 +97,16 @@ namespace SoftCoreMeds.Patch
             DebugLog(buffContent, stimItem);
 
             // check stim type for safe side
-            if (buffContent?.Ginterface392_0 is StimulatorTemplateClass effectTemplate)
+            if (buffContent?._template is not StimulatorTemplate effectTemplate || effectTemplate == null)
             {
-                DebugLog($"buffsetting = {buffContent?.StimulatorBuffs}, {buffContent?.Ginterface392_0?.GetType().FullName}");
-            }
-            else
-            {
-                DebugLog($"error component interfeace = {buffContent?.Ginterface392_0.GetType().FullName}");
+                DebugLog($"error component interfeace = {buffContent?._template.GetType().FullName}");
                 return;
             }
 
-            DebugLog(__instance, "BeforePatch");
+            DebugLog($"buffsetting = {buffContent?.StimulatorBuffs}, {buffContent?._template?.GetType().FullName}");
 
             // is palyer use stim for limb heal
-            if (GClass3058.RealBodyParts.Contains(bodyPart) && __instance.IsBodyPartDestroyed(bodyPart))
+            if (HealthHelper.RealBodyParts.Contains(bodyPart) && __instance.IsBodyPartDestroyed(bodyPart))
             {
                 DebugLog($"restore body part = {bodyPart}, current buff key = {effectTemplate.StimulatorBuffs}, backup buff key = {_originStimBuffKey}");
 
@@ -122,13 +117,14 @@ namespace SoftCoreMeds.Patch
 
                 // deplete Energy and Hydration for heal, deplete vale equals limb maxhealth
                 var bodyPartHealth = __instance.GetBodyPartHealth(bodyPart);
-                var energyPenalty = -bodyPartHealth.Maximum * (1F - __instance.SkillManager_0.MetabolismRatioPlus);
-                var hydrationPenalty = -bodyPartHealth.Maximum * (1F - __instance.SkillManager_0.MetabolismRatioPlus);
+                var energyPenalty = -bodyPartHealth.Maximum * (1F - __instance._skills.MetabolismRatioPlus);
+                var hydrationPenalty = -bodyPartHealth.Maximum * (1F - __instance._skills.MetabolismRatioPlus);
+
                 __instance.ChangeEnergy(energyPenalty);
                 __instance.ChangeHydration(hydrationPenalty);
 
                 // remove stim current buff, for next step
-                var activateEffects = __instance.FindActiveEffects<StimEffect>(EBodyPart.Common).Where(effect => Plugin.Check4PatchStimId(effect.Store.ItemTemplateId));
+                var activateEffects = __instance.FindActiveEffects<StimEffect>(EBodyPart.Common).Where(effect => Plugin.Check4PatchStimId(effect._store.ItemTemplateId));
                 foreach (var effect in activateEffects)
                 {
                     DebugLog(effect);
@@ -154,12 +150,12 @@ namespace SoftCoreMeds.Patch
 
         public static void ResetBuffTemplate(Item item)
         {
-            if (item is not StimulatorItemClass stimItem)
+            if (item is not Stimulator stimItem || stimItem == null)
             {
                 return;
             }
 
-            if (!Plugin.Check4PatchStimId(stimItem?.TemplateId.StringID))
+            if (!Plugin.Check4PatchStimId(stimItem.TemplateId._stringID))
             {
                 return;
             }
@@ -169,7 +165,7 @@ namespace SoftCoreMeds.Patch
                 return;
             }
 
-            if (buffContent?.Ginterface392_0 is StimulatorTemplateClass effectTemplate)
+            if (buffContent?._template is StimulatorTemplate effectTemplate)
             {
                 effectTemplate.StimulatorBuffs = _originStimBuffKey ?? "BuffseTGchange";
             }
@@ -179,7 +175,7 @@ namespace SoftCoreMeds.Patch
         {
             DebugLog($"itemType: {item.GetType().FullName}");
 
-            if (item is MedicalItemClass medicalItem)
+            if (item is Meds medicalItem)
             {
                 foreach (var comp in medicalItem.Components)
                 {
@@ -194,7 +190,7 @@ namespace SoftCoreMeds.Patch
             DebugLog($"debug#5: {string.Join(", ", effect.DisplayableVariations.SelectMany(_ => _.Buffs).Select(_ => _.NameDisplay))}");
         }
 
-        public static void DebugLog(HealthEffectsComponent buffContent, StimulatorItemClass stimItem)
+        public static void DebugLog(HealthEffectsComponent buffContent, Stimulator stimItem)
         {
             if (buffContent == null)
             {
@@ -205,42 +201,5 @@ namespace SoftCoreMeds.Patch
                 DebugLog(string.Join(", ", buffContent.BuffSettings.Select(_ => $"BuffName = {_.BuffName} ({_.Value})")));
             }
         }
-
-        public static void DebugLog(PlayerHealthController __instance, string flagStr)
-        {
-            if (!Plugin.EnableLog.Value)
-            {
-                return;
-            }
-
-            foreach (var _ in __instance.List_0)
-            {
-                DebugLog($"debug#0: {_.BodyPart}");
-                foreach (var __ in _.List_0)
-                {
-                    if (__ is GInterface376 effect1)
-                    {
-                        DebugLog($"debug#1: {effect1.BodyPart}, id = {__.Id}, tempid = {effect1.MedItem.StringTemplateId}");
-                        if (Plugin.Check4PatchStimId(effect1.MedItem.StringTemplateId))
-                        {
-                            //__instance.RemoveEffectFromList(__);
-                        }
-                    }
-                    else if (__ is StimEffect effect2)
-                    {
-                        DebugLog($"debug#2: {effect2.BodyPart}, id = {effect2.Id}, tempid = {effect2.Store.ItemTemplateId}");
-                        if (Plugin.Check4PatchStimId(effect2.Store.ItemTemplateId))
-                        {
-                            //__instance.RemoveEffectFromList(__);
-                        }
-                    }
-                    else
-                    {
-                        DebugLog($"debug#3: type = {__.GetType().FullName}");
-                    }
-                }
-            }
-        }
-
     }
 }

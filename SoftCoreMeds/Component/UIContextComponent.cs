@@ -6,7 +6,7 @@ using static UnityEngine.EventSystems.PointerEventData;
 
 namespace SoftCoreMeds.Component
 {
-    public class UIContextComponent : GClass1944, IItemComponent
+    public class UIContextComponent : IItemComponent
     {
         public InputButton input { get; set; }
 
