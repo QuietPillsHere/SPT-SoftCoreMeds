@@ -1,6 +1,7 @@
 ﻿using BepInEx.Logging;
 using EFT;
 using EFT.InventoryLogic;
+using EFT.UI;
 using EFT.UI.DragAndDrop;
 using HarmonyLib;
 using SoftCoreMeds.Component;
@@ -20,21 +21,21 @@ using LoggerInstance = BepInEx.Logging.Logger;
 namespace SoftCoreMeds.Patch
 {
     /// <summary>
-    /// Make Surgical Kit great again
+    /// Patch inventory item context menu click event, to add logics for surgical kit and stim
     /// </summary>
-    internal class PatchWhenItemOnClick : BasePatchModule
+    internal class Patch4ItemContextMenu : BasePatchModule
     {
         /// <summary>
         /// add logics to default EFT item click event
         /// </summary>
         /// <returns></returns>
-        protected override MethodBase GetTargetMethod() 
+        protected override MethodBase GetTargetMethod()
         {
             IsPatchByPreFix = true;
             return AccessTools.Method(
-                typeof(GridItemView), // class
-                nameof(GridItemView.OnClick), // method
-                new Type[] { typeof(InputButton), typeof(Vector2), typeof(bool) } // parameter
+                typeof(InventoryItemContextInteractions), // class
+                nameof(InventoryItemContextInteractions.ExecuteInteractionInternal), // method
+                new Type[] { typeof(EItemInfoButton) } // parameter
             );
         }
 
@@ -48,14 +49,12 @@ namespace SoftCoreMeds.Patch
         /// <param name="position"></param>
         /// <param name="doubleClick"></param>
         [PatchPrefix]
-        public static void Prefix(GridItemView __instance, InputButton button, Vector2 position, bool doubleClick)
+        public static void Prefix(InventoryItemContextInteractions __instance, EItemInfoButton interaction)
         {
-            if (!Plugin.EnableSurgeryPatch.Value)
+            if (!Plugin.EnableSurgeryPatch.Value && !Plugin.EnableStimulatorPatch.Value)
             {
                 return;
             }
-
-            DebugLog($"Init, buttons = {button}, doubleClick = {doubleClick}");
 
             if (!IsSurgeryKit(__instance.Item.StringTemplateId))
             {
@@ -63,20 +62,16 @@ namespace SoftCoreMeds.Patch
                 return;
             }
 
-            // add mount clic event data to item context, for later use in other patch method (PatchSurgeryRestoreByBatch)
             if (__instance.Item.TryGetItemComponent<UIContextComponent>(out var component))
             {
-                DebugLog($"create UIContextComponent for [{__instance.Item.Name}]");
-                component.input = button;
-                component.DoubleClick = doubleClick;
+                //flag for downstream patch method (PatchSurgeryRestoreByBatch)
+                component.ConsumMethod = interaction;
             }
             else
             {
-                DebugLog("update UIContextComponent");
                 __instance.Item.Components.Add(new UIContextComponent 
                 {
-                    DoubleClick = doubleClick,
-                    input = button
+                    ConsumMethod = interaction,
                 });
             }
 

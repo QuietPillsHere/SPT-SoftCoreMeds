@@ -78,7 +78,7 @@ namespace SoftCoreMeds.Patch
                 return;
             }
 
-            if (!Plugin.Check4PatchStimId(stimItem.TemplateId._stringID))
+            if (!IsRegenStim(stimItem.TemplateId._stringID))
             {
                 // skip other stim
                 DebugLog($"skip other stim, id = {stimItem?.TemplateId._stringID}");
@@ -124,7 +124,7 @@ namespace SoftCoreMeds.Patch
                 __instance.ChangeHydration(hydrationPenalty);
 
                 // remove stim current buff, for next step
-                var activateEffects = __instance.FindActiveEffects<StimEffect>(EBodyPart.Common).Where(effect => Plugin.Check4PatchStimId(effect._store.ItemTemplateId));
+                var activateEffects = __instance.FindActiveEffects<StimEffect>(EBodyPart.Common).Where(effect => IsRegenStim(effect._store.ItemTemplateId));
                 foreach (var effect in activateEffects)
                 {
                     DebugLog(effect);
@@ -155,7 +155,7 @@ namespace SoftCoreMeds.Patch
                 return;
             }
 
-            if (!Plugin.Check4PatchStimId(stimItem.TemplateId._stringID))
+            if (!IsRegenStim(stimItem.TemplateId._stringID))
             {
                 return;
             }

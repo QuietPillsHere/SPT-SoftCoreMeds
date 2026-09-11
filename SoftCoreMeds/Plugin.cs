@@ -33,6 +33,7 @@ namespace SoftCoreMeds
             // BepIn Plugin Init
             new PatchSurgeryRestoreByBatch().Enable();
             new PatchWhenItemOnClick().Enable();
+            new Patch4ItemContextMenu().Enable();
             new PatchStimulatorRestoreLimb().Enable();
             new PatchStimulatorLimbSelector().Enable();
 
@@ -102,12 +103,5 @@ namespace SoftCoreMeds
 
 #endif
         }
-
-        public static bool Check4PatchStimId(string inputItemID)
-        {
-            string patchStimId = string.IsNullOrEmpty(OverWriteStimId.Value) ? _defaultPatchStimItemId : OverWriteStimId.Value.Trim();
-            return patchStimId == inputItemID;
-        }
-
     }
 }

@@ -12,12 +12,14 @@ namespace SoftCoreMeds.Component
 
         public bool DoubleClick { get; set; }
 
+        public EItemInfoButton ConsumMethod { get; set; }
+
         public bool Serialized => false;
 
-        public UIContextComponent(Item item, InputButton input, bool DoubleClick)
-        {
-            this.input = input;
-            this.DoubleClick = DoubleClick;
-        }
+        //public UIContextComponent(InputButton input, bool DoubleClick = false, EItemInfoButton? consumMethod = null)
+        //{
+        //    this.input = input;
+        //    this.DoubleClick = DoubleClick;
+        //}
     }
 }

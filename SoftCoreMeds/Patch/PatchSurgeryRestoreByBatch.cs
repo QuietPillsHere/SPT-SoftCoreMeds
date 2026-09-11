@@ -37,16 +37,6 @@ namespace SoftCoreMeds.Patch
 
         private static new readonly ManualLogSource Logger = LoggerInstance.CreateLogSource(nameof(PatchSurgeryRestoreByBatch));
 
-        /// <summary>
-        /// Item Id: Surv12 field surgical kit 
-        /// </summary>
-        private const string _surv12Kit = "5d02797c86f774203f38e30a";
-
-        /// <summary>
-        /// Item Id: CMS surgical kit
-        /// </summary>
-        private const string _cmsKit = "5d02778e86f774203e7dedbe";
-
         private static PlayerHealthController _instance;
 
         private static Meds _medicalItem;
@@ -68,33 +58,23 @@ namespace SoftCoreMeds.Patch
                 return;
             }
 
-            if (!IsPatchItem(item.StringTemplateId))
+            if (!IsSurgeryKit(item.StringTemplateId))
             {
                 // skip other stim
                 DebugLog("skip for none surgical kit");
                 return;
             }
 
-            if (item is not Meds medicalItem)
+            if (item is not Meds medicalItem || medicalItem == null)
             {
                 // skip food and drink
                 DebugLog("skip food and drink, or stim");
                 return;
             }
 
-            // i'm soooooooooooo lost, this code just to find out what's EFT Dev doing
-            //DebugLog($"print component type = {medicalItem.MedKitComponent?.IMedkitResource?.GetType().FullName}");
-            //DebugLog($"resource count = {medicalItem.MedKitComponent?.HpResource}");
-
             if (medicalItem.MedKitComponent?.HpResource <= 1)
             {
                 DebugLog("skip for no resource left");
-                return;
-            }
-
-            if (medicalItem.MedKitComponent._template is not MedicalTemplate)
-            {
-                // skip not drug surgical kit, like CMS Surgical Kit
                 return;
             }
 
@@ -106,7 +86,11 @@ namespace SoftCoreMeds.Patch
             if (uiComponent != null)
             {
                 DebugLog("get ui context from item");
+                // flag heal all limb by double left click
                 healAll = uiComponent.input == UnityEngine.EventSystems.PointerEventData.InputButton.Left && uiComponent.DoubleClick;
+                // flag heal all limb by context menu click
+                healAll = uiComponent.ConsumMethod == EItemInfoButton.Use || uiComponent.ConsumMethod == EItemInfoButton.UseAll;
+                // remove ui context component to avoid triggering other interaction logic
                 medicalItem.Components.Remove(uiComponent);
             }
 
@@ -123,11 +107,6 @@ namespace SoftCoreMeds.Patch
             }
 
             DebugLog("Complete");
-        }
-
-        public static bool IsPatchItem(string itemTemplateId)
-        {
-            return itemTemplateId == _surv12Kit || itemTemplateId == _cmsKit;
         }
 
         public static void RestoreNextLimb(EBodyPart body, ValueStruct bodyPartHealth)

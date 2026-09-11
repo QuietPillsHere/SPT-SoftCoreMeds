@@ -49,7 +49,7 @@ namespace SoftCoreMeds.Patch
 
             DebugLog($"Init, param [Item = {item.StringTemplateId}, Name = {item.Name}, BodyPart = {string.Join("|", result.Select(_ => _.ToString()))}, ItemType = {item.GetType().FullName}]");
 
-            if (!Plugin.Check4PatchStimId(item.StringTemplateId))
+            if (!IsRegenStim(item.StringTemplateId))
             {
                 DebugLog("skip none patch stim");
                 return;
